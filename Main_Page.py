@@ -101,7 +101,7 @@ def sidebar_base():
     st.sidebar.title("About")
     st.sidebar.info(
     """
-    Web App URL: \n <https://.streamlitapp.com>
+    Web App URL: \n <https://recana.streamlit.app/>
     GitHub repo: \n <https://github.com/kamerozdmr/RecordAnalyzer>
     """
     )
