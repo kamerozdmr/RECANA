@@ -102,7 +102,7 @@ def sidebar_base():
     st.sidebar.info(
     """
     Web App URL: \n <https://.streamlitapp.com>
-    GitHub repo: \n <https://github.com/kamerozdmr>
+    GitHub repo: \n <https://github.com/kamerozdmr/RecordAnalyzer>
     """
     )
 
