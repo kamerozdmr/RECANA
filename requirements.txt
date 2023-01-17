@@ -5,4 +5,5 @@ numpy==1.21.4
 openpyxl==3.0.10
 plotly==5.5.0
 streamlit-extras==0.2.4
+streamlit-option-menu==0.3.2
 XlsxWriter==3.0.7
