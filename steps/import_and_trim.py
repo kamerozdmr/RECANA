@@ -51,7 +51,7 @@ def importandTrim():
     read_rec_col, info_col = import_container.columns([2, 3])
 
     # Import file
-    files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True)
+    files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "gcf"])
     
     ######################
     # Calibration section   
