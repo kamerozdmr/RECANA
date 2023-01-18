@@ -18,7 +18,7 @@ from steps.spectral_analysis import spectralAnalysis
 
 
 # Page configs 
-# https://www.webfx.com/tools/emoji-cheat-sheet/
+# https://www.webfx.com/tools/emoji-cheat-sheet/                      https://emojipedia.org/symbols/
 st.set_page_config(page_title="Record Analyzer",
                     page_icon="img/logo_low.png",
                     layout="wide"
@@ -85,7 +85,7 @@ def sidebar_base():
         
 
     # Info box
-    st.sidebar.warning("___Complete the steps in order.___")
+    st.sidebar.warning("___Complete the steps in order.___", icon="⚠️")
 
     # Add vertical space
     st.sidebar.write("\n")
