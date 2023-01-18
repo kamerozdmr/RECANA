@@ -95,7 +95,6 @@ def sidebar_base():
     st.sidebar.write("\n")
     st.sidebar.write("\n")
     st.sidebar.write("\n")
-    st.sidebar.write("\n")
 
     # Add info box
     st.sidebar.title("About")
