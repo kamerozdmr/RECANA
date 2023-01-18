@@ -98,7 +98,7 @@ def importandTrim():
 
 
     if "uploaded_files" not in st.session_state:
-        read_rec_col.warning("___No file to upload.___", icon="⚠️")
+        read_rec_col.warning("___Currently supported file formats : .mseed, .gcf___", icon="⚠️")
 
     else:
         
@@ -153,7 +153,7 @@ def importandTrim():
 
 
         if "stream_df" not in st.session_state:
-            read_rec_col.warning("___Currently supported file formats : .mseed, .gcf___", icon="⚠️")
+            read_rec_col.warning("___Files could not be read.___", icon="⚠️")
             
 
         else:
