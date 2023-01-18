@@ -186,7 +186,7 @@ def filterandExport():
 
         # FIR Filter process
         if st.session_state["filter_type_select"] == "FIR":
-            filter_col2.warning("FIR filter type is not available.")
+            filter_col2.warning("___FIR filter type is not available.___", icon="⚠️")
 
 
 

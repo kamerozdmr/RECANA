@@ -98,7 +98,7 @@ def importandTrim():
 
 
     if "uploaded_files" not in st.session_state:
-        read_rec_col.warning("Not uploaded")
+        read_rec_col.warning("___No file to upload.___", icon="⚠️")
 
     else:
         
@@ -115,7 +115,7 @@ def importandTrim():
         if read_record_button:
             center_running()
             if not files:
-                read_rec_col.error("File not found to import.")
+                read_rec_col.error("___File not found to import.___", icon="🚨")
 
             else:
                 concat_class = []
@@ -153,11 +153,11 @@ def importandTrim():
 
 
         if "stream_df" not in st.session_state:
-            read_rec_col.warning("Files could not be read")
+            read_rec_col.warning("___Currently supported file formats : .mseed, .gcf___", icon="⚠️")
             
 
         else:
-            read_rec_col.success("Ready")
+            read_rec_col.success("___Ready___", icon="✔️")
             
             # Select record to calibrate
             record_select = calib_col1.selectbox(
@@ -207,7 +207,7 @@ def importandTrim():
 
                 st.session_state["stream_df"]["unit"] = select_unit
 
-                calib_col4.success("Done")
+                calib_col4.success("___Done___", icon="✔️")
 
 
             # Trim range select
@@ -245,7 +245,7 @@ def importandTrim():
                         # Set calibration state
                         st.session_state["stream_df"]["trimstatus"].iloc[index] = "Set"
 
-                trim_col2.success("Done")
+                trim_col2.success("___Done___", icon="✔️")
 
 
 
@@ -274,7 +274,7 @@ def importandTrim():
                                             name= linename,
                                             ))
                     else:
-                        plot_col3.warning("Data did not calibrated!")
+                        plot_col3.warning("___Data not calibrated.___", icon="⚠️")
 
                 if selected_plot == "Trimmed":
                     if st.session_state["stream_df"]["trimstatus"].iloc[0] == "Set":                 #st.session_state["trim_state"] == True:
@@ -286,7 +286,7 @@ def importandTrim():
                                             name= linename,
                                             ))
                     else:
-                        plot_col3.warning("Data did not trimmed!")
+                        plot_col3.warning("___Data not trimmed.___", icon="⚠️")
 
 
                 unit = st.session_state["stream_df"]["unit"]
