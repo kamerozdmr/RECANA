@@ -238,7 +238,7 @@ def filterandExport():
                     filter_detrend_check = filter_col5.checkbox("Filter Detrended Data", help="Check to use detrended data for filtering.")
 
                     # Apply filter button
-                    filter_button = filter_col6.button("Plot Time Series", help="Apply filter and plot.")
+                    filter_button = filter_col6.button("Apply and Plot", help="Apply filter and plot.")
 
 
 
@@ -265,7 +265,7 @@ def filterandExport():
                     filter_detrend_check = filter_col5.checkbox("Filter Detrended Data", help="Check to use detrended data for filtering.")
 
                     # Apply filter button
-                    filter_button = filter_col6.button("Plot Time Series", help="Apply filter and plot.")
+                    filter_button = filter_col6.button("Apply and Plot", help="Apply filter and plot.")
 
 
                 #########################
@@ -290,7 +290,7 @@ def filterandExport():
                     filter_detrend_check = filter_col5.checkbox("Filter Detrended Data", help="Check to use detrended data for filtering.")
 
                     # Apply filter button
-                    filter_button = filter_col6.button("Plot Time Series", help="Apply filter and plot.")               
+                    filter_button = filter_col6.button("Apply and Plot", help="Apply filter and plot.")               
                     
                 
                 if filter_button:

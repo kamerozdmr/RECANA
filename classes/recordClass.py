@@ -48,7 +48,7 @@ class Record:
             data =  pd.Series(trace.data)       #pd.Series(trace.data)
             df = {"filename": self.filename, 
                     "fileformat": self.fileformat,
-                    "tracename": f"Trace {trace_ind+1} - {trace.stats.channel}",
+                    "tracename": f"Trace{trace_ind+1}-{trace.stats.channel}",
                     "rawdata": data,
                     "calibrateddata": [],
                     "trimmeddata": [],
@@ -82,6 +82,9 @@ class Record:
             self.importMseed()                     # Run file format function
         
         elif self.fileformat == "gcf":
+            self.importMseed()
+
+        elif self.fileformat == "SAC":
             self.importMseed()
 
         else:

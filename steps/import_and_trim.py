@@ -51,7 +51,7 @@ def importandTrim():
     read_rec_col, info_col = import_container.columns([2, 3])
 
     # Import file
-    files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "gcf"])
+    files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "gcf", "sac"])
     
     ######################
     # Calibration section   
@@ -109,7 +109,7 @@ def importandTrim():
 
         
         # Create expander
-        expander_record_properties = info_col.expander("See record properties.")
+        expander_record_properties = info_col.expander("Record properties")
 
 
         if read_record_button:

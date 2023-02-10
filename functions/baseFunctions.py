@@ -122,7 +122,7 @@ def exportCsv(stream_df, export_prop, export_data_select, export_time_domain, de
     for index, value in export_prop.items():
         if value == True:
             tracename = str(stream_df["tracename"].iloc[index])
-            columndata, columntime = tracename + str(" - Data"), tracename + str(" - Time")
+            columndata, columntime = tracename + str("-Data"), tracename + str("-Time")
             df_csv[columndata] = list(stream_df[export_data_select].iloc[index])
             df_csv[columntime] = list(stream_df[export_time_domain].iloc[index])
 
