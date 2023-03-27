@@ -125,7 +125,7 @@ def importandTrim():
                     #file_name, file_format = files[ind].name.split(".")
                     file_name_format = files[ind].name.split(".")
                     file_format = file_name_format.pop()
-                    file_name = file_name_format
+                    file_name = ''.join(file_name_format)
                     
                     # Create Record instance   
                     record = Record(files[ind], file_name, file_format)
