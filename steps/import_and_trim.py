@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_extras.colored_header import colored_header
 from streamlit_extras.customize_running import center_running
 
+import os
 import numpy as np
 import plotly.graph_objects as go
 import pandas as pd
@@ -51,7 +52,7 @@ def importandTrim():
     read_rec_col, info_col = import_container.columns([2, 3])
 
     # Import file
-    files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "gcf", "sac"])
+    files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "sac", "gcf"])
     
     ######################
     # Calibration section   
@@ -98,7 +99,7 @@ def importandTrim():
 
 
     if "uploaded_files" not in st.session_state:
-        read_rec_col.warning("___Currently supported file formats : .mseed, .gcf___", icon="⚠️")
+        read_rec_col.warning("___Supported file formats : .mseed, .SAC, .gcf___", icon="⚠️")
 
     else:
         
@@ -109,7 +110,7 @@ def importandTrim():
 
         
         # Create expander
-        expander_record_properties = info_col.expander("Record properties")
+        expander_record_properties = info_col.expander("Record properties", expanded=True)
 
 
         if read_record_button:
@@ -121,7 +122,10 @@ def importandTrim():
                 concat_class = []
 
                 for ind in range(len(files)):
-                    file_name, file_format = files[ind].name.split(".")
+                    #file_name, file_format = files[ind].name.split(".")
+                    file_format = files[ind].name.split(".")[-1]
+                    file_name = files[ind].name.split(".").pop()
+                    #file_name, file_format = os.path.splitext(files[ind].name)
                     
                     # Create Record instance   
                     record = Record(files[ind], file_name, file_format)
@@ -153,7 +157,8 @@ def importandTrim():
 
 
         if "stream_df" not in st.session_state:
-            read_rec_col.warning("___Files could not be read.___", icon="⚠️")
+            pass
+            #read_rec_col.warning("___Files could not be read.___", icon="⚠️")
             
 
         else:

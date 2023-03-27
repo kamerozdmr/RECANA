@@ -60,7 +60,7 @@ def sidebar_base():
 
     # Add vertical space
     with st.sidebar:
-        add_vertical_space(2)
+        add_vertical_space(3)
     #st.sidebar.write("\n")
     
     # Import Option menu 
@@ -92,13 +92,12 @@ def sidebar_base():
 
     # Add vertical space
     with st.sidebar:
-        add_vertical_space(7)
+        add_vertical_space(10)
 
     # Add info box
     st.sidebar.title("About")
     st.sidebar.info(
     """
-    Web App URL: \n <https://recana.streamlit.app/>
     GitHub repo: \n <https://github.com/kamerozdmr/RecordAnalyzer>
     """
     )
