@@ -15,10 +15,9 @@ from functions.stFunctions import *
 
 from steps.import_and_trim import importandTrim
 from steps.filter_and_export import filterandExport
-from steps.spectral_analysis import spectralAnalysis
-from steps.earthquake_analysis import earthquakeAnalysis
 
-# Page configs 
+
+# Page configs
 # https://www.webfx.com/tools/emoji-cheat-sheet/                      https://emojipedia.org/symbols/
 st.set_page_config(page_title="Record Analyzer",
                     page_icon="img/logo_low.png",
@@ -28,7 +27,7 @@ st.set_page_config(page_title="Record Analyzer",
 # Remove Streamlit footer and main page  --- custom css code
 hide_st_style = """ <style> #MainMenu {visibility: hidden;}
                 footer {visibility: hidden;} 
-                
+                header {visibility: hidden;}
                 </style> 
                 """
 
@@ -49,28 +48,28 @@ def img_to_bytes(img_path):
     return encoded
 
 def sidebar_base():
-    # Option menu base format
-    #sidebarHeight()
-    #add_logo("img/logo.png")
-    #st.sidebar.title("Pages")
-    #st.sidebar.markdown("___Adjust sidebar height___")
-
     # Import sidebar logo
     st.sidebar.markdown('''<img src='data:image/png;base64,{}' class='img-fluid' width=300 height=100>'''.format(img_to_bytes("img/logotext.png")), unsafe_allow_html=True)
 
     # Add vertical space
     with st.sidebar:
-        add_vertical_space(3)
-    #st.sidebar.write("\n")
+        add_vertical_space(5)
     
     # Import Option menu 
     with st.sidebar:
         selected = option_menu(
             menu_title="Steps",
-            options=["Import and Trim", "Filter and Export", "Spectral Analysis", "Earthquake Analysis"],
+            options=["Import and Trim", "Filter and Export"],
             icons=["box-arrow-in-up", "filter", "graph-up", "soundwave"],        # https://icons.getbootstrap.com/
             menu_icon= "bar-chart-steps",
             default_index=0,
+            styles={
+                    "container": {"padding": "0!important", "background-color": "#dde5dc"},
+                    "icon": {"color": "#e2001a", "font-size": "24px"}, 
+                    "nav-link": {"font-size": "16px", "text-align": "left", "margin":"3px", "--hover-color": "#eee"},
+                    "nav-link-selected": {"background-color": "#B4B1B1"},
+                    "menu-icon": {"color": "#e2001a"},
+                    },
         )
 
     # Run option menu functions
@@ -79,28 +78,26 @@ def sidebar_base():
 
     if selected == "Filter and Export":
         filterandExport()
-        
-    if selected == "Spectral Analysis":
-        spectralAnalysis()
 
-    if selected == "Earthquake Analysis":
-        earthquakeAnalysis()
-        
-
-    # Info box
-    #st.sidebar.warning("___Complete the steps in order.___", icon="⚠️")
 
     # Add vertical space
     with st.sidebar:
-        add_vertical_space(10)
+        add_vertical_space(2)
 
     # Add info box
     st.sidebar.title("About")
+   
+
     st.sidebar.info(
-    """
-    GitHub repo: \n <https://github.com/kamerozdmr/RecordAnalyzer>
-    """
-    )
+                    """
+                    >___Web Application for basic signal processing___
+                    [**GitHub repository**](https://github.com/kamerozdmr/RecordAnalyzer)\n
+                    ___author: Kamer Özdemir___\n
+                    _17.08.2023_\n
+                    _v0.2_ 
+                    """
+                    )
+
 
 if __name__ == '__main__':
     main()

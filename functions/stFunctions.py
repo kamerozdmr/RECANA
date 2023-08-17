@@ -48,7 +48,9 @@ def sidebarHeight():
         <style>
         section[data-testid="stSidebar"] .css-ng1t4o {{width: 14rem;}}
         </style>
-    ''',unsafe_allow_html=True)
+    ''',unsafe_allow_html=True
+    )
+
 
 def sidebarLogoOptionMenu(png_file, header_sidebar):
     LOGO_IMAGE = png_file

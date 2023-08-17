@@ -3,9 +3,8 @@ from streamlit_extras.colored_header import colored_header
 from streamlit_extras.customize_running import center_running
 
 import os
-import numpy as np
 import plotly.graph_objects as go
-import pandas as pd
+from pandas import Series, concat
 
 def importandTrim():
     from classes.recordClass import Record
@@ -49,7 +48,7 @@ def importandTrim():
 
     # Divide into 2 columns
     ######################
-    read_rec_col, info_col = import_container.columns([2, 3])
+    read_rec_col, info_col = import_container.columns([2, 2])
 
     # Import file
     files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "sac", "gcf"])
@@ -116,32 +115,38 @@ def importandTrim():
         if read_record_button:
             center_running()
             if not files:
-                read_rec_col.error("___File not found to import.___", icon="🚨")
+                read_rec_col.error("___The file could not be found for import___", icon="🚨")
 
             else:
-                concat_class = []
+                concat_stream_df = []
+                concat_TDparams_stream_df = []
 
                 for ind in range(len(files)):
                     #file_name, file_format = files[ind].name.split(".")
-                    file_name_format = files[ind].name.split(".")
-                    file_format = file_name_format.pop()
-                    file_name = ''.join(file_name_format)
+                    #file_name_format = files[ind].name.split(".")
+                    #file_format = file_name_format.pop()
+                    #file_name = ''.join(file_name_format)
+                
+                    file_name, file_format = os.path.splitext(str(files[ind].name))
                     
                     # Create Record instance   
-                    record = Record(files[ind], file_name, file_format)
+                    record = Record(files[ind], file_name, file_format[1:])
 
                     # Run funtion that imports record file 
                     record.importFile()
 
                     # List of stream instances that are going to be concatenated
-                    concat_class.append(record.stream_df)
+                    concat_stream_df.append(record.stream_df)
+                    concat_TDparams_stream_df.append(record.TDparams_stream_df)
 
                     
                 # Concatenate stream instances
-                record.stream_df = pd.concat(concat_class).reset_index()
+                record.stream_df = concat(concat_stream_df).reset_index()
+                record.TDparams_stream_df = concat(concat_TDparams_stream_df).reset_index()
 
                 # Store values in a session state
                 st.session_state["stream_df"] = record.stream_df
+                st.session_state["TDparams_df"] = record.TDparams_stream_df
 
                 # Expander
                 expander_df = record.stream_df[["filename", "fileformat", "tracename", "npts", "delta", "starttime", "endtime"]]
@@ -166,23 +171,20 @@ def importandTrim():
             
             # Select record to calibrate
             record_select = calib_col1.selectbox(
-            "Select file",
-            st.session_state["stream_df"]["filename"].unique(), 
-            help= "Set selected file's parameters.")
-
-            calib_col1.caption(f"_{record_select}_")
+                                                "Select file",
+                                                st.session_state["stream_df"]["filename"].unique(),   # st.session_state["stream_df"]["filename"].unique()    str(st.session_state["stream_df"]["filename"].unique())[2:-2])
+                                                help= "Set selected file's parameters.",
+                                                )
+            
 
             st.session_state["selected_prop"] = st.session_state["stream_df"]["filename"].str.contains(record_select, regex=True)
-            
 
             # Apply Calibration factor
             calib_factor = calib_col2.number_input("Calibration factor.", help= "Factor to divide raw values for to convert chosen unit.", value=1)
-            calib_col2.caption(f"_Input box {calib_factor}_")
 
 
             # Select unit
-            select_unit = calib_col3.selectbox("Select unit.", ("g", "mg", "ug", "m/s2", "cm/s2"), help="Chosen unit of acceleration.")
-            calib_col3.caption(f"_Unit is {select_unit}_")
+            select_unit = calib_col3.selectbox("Select unit.", ("g", "mg", "m/s/s", "cm/s/s"), help="Chosen unit of acceleration.")
 
 
             # Apply button
@@ -207,8 +209,6 @@ def importandTrim():
 
                         # Set calibration state
                         st.session_state["stream_df"]["calibrationstatus"].iloc[index] = "Set"
-                        
-
 
                 st.session_state["stream_df"]["unit"] = select_unit
 
@@ -218,6 +218,8 @@ def importandTrim():
             # Trim range select
             for index, value in st.session_state["selected_prop"].items():
                 if value == True:
+                    ### Data (1) problemi burada 
+                    ##########################
                     duration = int(st.session_state["stream_df"]["npts"].iloc[[index]] * st.session_state["stream_df"]["delta"].iloc[[index]])
 
             trim_range = trim_col1.slider("Select trimming range in seconds", 0, duration, (0, duration))
@@ -234,18 +236,11 @@ def importandTrim():
                         duration_trimmed = int(rh - rl)
                         sps = int(1 / st.session_state["stream_df"]["delta"].iloc[[index]])
 
-                        #deneme = st.session_state["stream_df"]["calibrateddata"].iloc[index].truncate(before=int(rl*sps), after=int(rh*sps-1))
-                        #st.session_state["stream_df"]["trimmeddata"].iloc[index] = pd.Series(deneme)
-
                         # Trim acceleration data
-                        st.session_state["stream_df"]["trimmeddata"].iloc[index] = pd.Series(st.session_state["stream_df"]["calibrateddata"].iloc[index].truncate(before=int(rl*sps), after=int(rh*sps-1)))
+                        st.session_state["stream_df"]["trimmeddata"].iloc[index] = Series(st.session_state["stream_df"]["calibrateddata"].iloc[index].truncate(before=int(rl*sps), after=int(rh*sps-1)))
 
                         # Trim time domain
-                        st.session_state["stream_df"]["trimmedtimesec"].iloc[index] = pd.Series(st.session_state["stream_df"]["timesec"].iloc[index][0 : int(rh*sps - rl*sps)])
-
-                        #trim_col2.text(st.session_state["stream_df"]["trimmeddata"].iloc[index])
-                        #trim_col2.text((st.session_state["stream_df"]["trimmedtimesec"].iloc[index]))
-
+                        st.session_state["stream_df"]["trimmedtimesec"].iloc[index] = Series(st.session_state["stream_df"]["timesec"].iloc[index][0 : int(rh*sps - rl*sps)])
 
                         # Set calibration state
                         st.session_state["stream_df"]["trimstatus"].iloc[index] = "Set"
@@ -270,7 +265,7 @@ def importandTrim():
                                         ))
                 
                 if selected_plot == "Calibrated":
-                    if st.session_state["stream_df"]["calibrationstatus"].iloc[0] == "Set":          #st.session_state["calibrate_state"] == True:
+                    if st.session_state["stream_df"]["calibrationstatus"].iloc[0] == "Set":          
                         # Plot 
                         for _, row in st.session_state["stream_df"].iterrows():
                             linename = str(row["filename"]) + str(" ") + str(row["tracename"])
@@ -282,7 +277,7 @@ def importandTrim():
                         plot_col3.warning("___Data not calibrated.___", icon="⚠️")
 
                 if selected_plot == "Trimmed":
-                    if st.session_state["stream_df"]["trimstatus"].iloc[0] == "Set":                 #st.session_state["trim_state"] == True:
+                    if st.session_state["stream_df"]["trimstatus"].iloc[0] == "Set":                
                         # Plot 
                         for _, row in st.session_state["stream_df"].iterrows():
                             linename = str(row["filename"]) + str(" ") + str(row["tracename"])
@@ -298,18 +293,12 @@ def importandTrim():
                 fig_ts.update_yaxes(title_text=f"Acceleration ({str(unit[0])})")
 
             
-                
-
-
-
+            
     # Plot objects
-    fig_ts.update_layout(legend_title_text = "File name - Trace", legend=dict(x=0.01, y=0.01), height=600)           # title_text= "Time Series",
+    fig_ts.update_layout(legend_title_text = "File name - Trace", legend=dict(x=0.01, y=0.01), height=600)           
     fig_ts.update_xaxes(title_text="Time (s)")
-    #fig_ts.update_yaxes(title_text=f"Acceleration")
 
     import_plot_container.plotly_chart(fig_ts, theme="streamlit", use_container_width=True, height=600)
-
-
 
 
 
