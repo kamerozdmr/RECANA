@@ -11,9 +11,9 @@ def get_base64_of_bin_file(png_file):
 
 def build_markup_for_logo(
     png_file,
-    background_position="15px 10%",
-    margin_top="3%",
-    image_width="84px",
+    background_position="18px 5%",
+    margin_top="1%",
+    image_width="80px",
     image_height=""):
     binary_string = get_base64_of_bin_file(png_file)
     return """
@@ -46,9 +46,11 @@ def add_logo(png_file):
 def sidebarHeight():
     st.markdown(f'''
         <style>
-        section[data-testid="stSidebar"] .css-ng1t4o {{width: 14rem;}}
+        section[data-testid="stSidebar"] .css-ng1t4o {{width: 12rem;}}
         </style>
-    ''',unsafe_allow_html=True)
+    ''',unsafe_allow_html=True
+    )
+
 
 def sidebarLogoOptionMenu(png_file, header_sidebar):
     LOGO_IMAGE = png_file

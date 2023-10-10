@@ -8,15 +8,14 @@ class Record:
         
         self.filename = filename
         self.fileformat = fileformat
-        self.filedata = read(filedata)    # read with obspy
-
-        # Import the file
-        #self.importFile(filedata)
+        self.filedata = filedata
 
 
-    def importMseed(self):
+    def createFileParameters(self):
+        # Read .mseed, .sac, .gcf files with obspy
+        self.filedata = read(self.filedata)    
 
-        
+        # Dictionary containing record properties
         self.stream_dict = {"filename": [], 
                             "fileformat": [],
                             "tracename": [],
@@ -42,11 +41,36 @@ class Record:
 
         self.stream_df =  pd.DataFrame(data= self.stream_dict)
 
+        # Dictionary containing time domain analysis parameters
+        self.TDparams_stream_dict = {"filename": [],
+                                    "tracename": [],
+                                    "PGA": [],
+                                    "PGAtime": [],
+                                    "PGAunit": [],
+                                    "PGV": [],
+                                    "PGVtime": [],
+                                    "PGVunit": [],
+                                    "PGD": [],
+                                    "PGDtime": [],
+                                    "PGDunit": [], 
+                                    "AriasIntensity": [],
+                                    "AriasIntensityunit": [],
+                                    "SignificantDuration": [],
+                                    "CAV": [],
+                                    "StandardizedCAV": [],
+                                    "CAVunit" : [],
+                                    }
+        
+        self.TDparams_stream_df =  pd.DataFrame(data= self.TDparams_stream_dict)
+
+
 
         for trace_ind in range(len(self.filedata)):
             trace = self.filedata[trace_ind]
-            data =  pd.Series(trace.data)       #pd.Series(trace.data)
-            df = {"filename": self.filename, 
+            data =  pd.Series(trace.data)     
+            
+            # Create Dataframe containing record properties  
+            trace_dict = {"filename": self.filename, 
                     "fileformat": self.fileformat,
                     "tracename": f"Trace{trace_ind+1}-{trace.stats.channel}",
                     "rawdata": data,
@@ -69,23 +93,60 @@ class Record:
                     "starttime": trace.stats.starttime.datetime,
                     "endtime": trace.stats.endtime.datetime,
                     "unit": "Raw",
-                    
                     }
 
             # Append to stream_df
-            self.stream_df = self.stream_df.append(df, ignore_index = True)
+            self.stream_df = self.stream_df.append(trace_dict, ignore_index = True)
+
+
+
+
+            # Create Dataframe containing time domain analysis parameters
+            TDparams_trace_dict = {"filename": self.filename,
+                                    "tracename": f"Trace{trace_ind+1}-{trace.stats.channel}",
+                                    "PGA": None,
+                                    "PGAtime": None,
+                                    "PGAunit": None,
+                                    "PGV": None,
+                                    "PGVtime": None,
+                                    "PGVunit": None,
+                                    "PGD": None,
+                                    "PGDtime": None,
+                                    "PGDunit": None, 
+                                    "AriasIntensity": None,
+                                    "AriasIntensityunit": None,
+                                    "SignificantDuration": None,
+                                    "CAV": None,
+                                    "StandardizedCAV": None,
+                                    "CAVunit" : None,
+                                    }
+            
+            # Append to TDparams_df
+            self.TDparams_stream_df = self.TDparams_stream_df.append(TDparams_trace_dict, ignore_index = True)
+
+
+    def createAscFileParameters(self):
+        # Read asc file 
+
+        pass
+        #self.TDparams_stream_df = 
 
 
     def importFile(self):
 
         if self.fileformat == "mseed":
-            self.importMseed()                     # Run file format function
+            self.createFileParameters()                     
         
         elif self.fileformat == "gcf":
-            self.importMseed()
+            self.createFileParameters()
 
         elif self.fileformat == "SAC":
-            self.importMseed()
+            self.createFileParameters()
+
+        elif self.fileformat == "asc":
+            self.createAscFileParameters()
+
+        # add txt, ascii formats 
 
         else:
             print("unknown file format")

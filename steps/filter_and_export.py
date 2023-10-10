@@ -221,8 +221,8 @@ def filterandExport():
                     nyquist = float(int(1/delta)/2)
 
                     # band-pass filter objects
-                    highpass_corner = filter_col3.number_input("High-pass Corner", help= "Select High-pass filter corner frequency.", value= float(2.5), min_value= 0.01, max_value= nyquist-0.1)
-                    lowpass_corner = filter_col3.number_input("Low-pass Corner", help= "Select Low-pass filter corner frequency.", value= float(25), min_value= highpass_corner+0.1, max_value= nyquist-0.1)
+                    highpass_corner = filter_col3.number_input("High-pass Corner", help= "Select High-pass filter corner frequency.", value= float(0.5), min_value= 0.01, max_value= nyquist-0.1, step=0.1)
+                    lowpass_corner = filter_col3.number_input("Low-pass Corner", help= "Select Low-pass filter corner frequency.", value= float(25), min_value= highpass_corner+0.1, max_value= nyquist-0.1, step=0.1)
                     st.session_state["filter_order"] = filter_col4.number_input("Order", help= "Select the order of the filter.", value= int(4), min_value= int(1), max_value= int(20))
 
                     st.session_state["filter_prop"] = [highpass_corner, lowpass_corner]
@@ -235,7 +235,7 @@ def filterandExport():
                     kernelPlot(filter_kernel_plot_cont, kernel, nyquist, st.session_state["filter_prop"], st.session_state["iir_type"])
 
                     # Select if detrend data is going to used
-                    filter_detrend_check = filter_col5.checkbox("Filter Detrended Data", help="Check to use detrended data for filtering.")
+                    filter_detrend_check = filter_col5.checkbox("Use Detrended Data", help="Use detrended data for filtering.")
 
                     # Apply filter button
                     filter_button = filter_col6.button("Apply and Plot", help="Apply filter and plot.")
@@ -476,7 +476,7 @@ def filterandExport():
                 export_col4.download_button(
                                             label= "Export File",
                                             data= exportExcel(st.session_state["stream_df"], st.session_state["selected_export_prop"], st.session_state["export_data_select"], st.session_state["export_time_domain"]),
-                                            file_name= f"{filename}_record_analyzer.xlsx",
+                                            file_name= f"{filename}_recana.xlsx",
                                             mime= "application/vnd.ms-excel",
                                             )
 
@@ -488,7 +488,7 @@ def filterandExport():
                 export_col4.download_button(
                                             label= "Export File",   
                                             data= exportCsv(st.session_state["stream_df"], st.session_state["selected_export_prop"], st.session_state["export_data_select"], st.session_state["export_time_domain"], export_delimiter_select),
-                                            file_name= f"{filename}_record_analyzer.csv",
+                                            file_name= f"{filename}_recana.csv",
                                             mime="text/csv",
                                             )
 
@@ -500,7 +500,7 @@ def filterandExport():
                 export_col4.download_button(
                                             label= "Export File",   
                                             data= exportCsv(st.session_state["stream_df"], st.session_state["selected_export_prop"], st.session_state["export_data_select"], st.session_state["export_time_domain"], export_delimiter_select),
-                                            file_name= f"{filename}_record_analyzer.txt",
+                                            file_name= f"{filename}_recana.txt",
                                             mime="text/csv",
                                             )
 

@@ -6,17 +6,25 @@ import os
 import numpy as np
 import plotly.graph_objects as go
 import pandas as pd
+import parse
 
 def importandTrim():
     from classes.recordClass import Record
     
     # Headers and containers
     # Page Main Title 
+    st.info(
+                    """___For more detailed information about the app visit___
+                    [**www.modaltrace.com**](https://modaltrace.com/)\n
+                    """
+                    )
+    
     colored_header(
                     label="Import and Trim",
                     description="Select a file to analyze.",
                     color_name="blue-70",
                 )
+    
     import_container = st.container()
 
 
@@ -49,7 +57,7 @@ def importandTrim():
 
     # Divide into 2 columns
     ######################
-    read_rec_col, info_col = import_container.columns([2, 3])
+    read_rec_col, info_col = import_container.columns([2, 2])
 
     # Import file
     files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "sac", "gcf"])
@@ -99,7 +107,7 @@ def importandTrim():
 
 
     if "uploaded_files" not in st.session_state:
-        read_rec_col.warning("___Supported file formats : .mseed, .SAC, .gcf___", icon="⚠️")
+        read_rec_col.warning("___Supported file formats : .mseed, .sac, .gcf___", icon="⚠️")
 
     else:
         
@@ -116,32 +124,48 @@ def importandTrim():
         if read_record_button:
             center_running()
             if not files:
-                read_rec_col.error("___File not found to import.___", icon="🚨")
+                read_rec_col.error("___The file could not be found for import___", icon="🚨")
 
             else:
-                concat_class = []
+                concat_stream_df = []
+                concat_TDparams_stream_df = []
 
                 for ind in range(len(files)):
                     #file_name, file_format = files[ind].name.split(".")
-                    file_name_format = files[ind].name.split(".")
-                    file_format = file_name_format.pop()
-                    file_name = ''.join(file_name_format)
+                    #file_name_format = files[ind].name.split(".")
+                    #file_format = file_name_format.pop()
+                    #file_name = ''.join(file_name_format)
+                
+                    file_name, file_format = os.path.splitext(str(files[ind].name))
                     
-                    # Create Record instance   
-                    record = Record(files[ind], file_name, file_format)
+                    #################################
+                    #################################
+                    if file_format == ".asc":
+                        data = files[0].readlines()
+
+                        st.write(len(data))
+                    
+                    #################################
+                    #################################
+                    
+                    # Create Record instance
+                    record = Record(files[ind], file_name, file_format[1:])
 
                     # Run funtion that imports record file 
                     record.importFile()
 
                     # List of stream instances that are going to be concatenated
-                    concat_class.append(record.stream_df)
+                    concat_stream_df.append(record.stream_df)
+                    concat_TDparams_stream_df.append(record.TDparams_stream_df)
 
                     
                 # Concatenate stream instances
-                record.stream_df = pd.concat(concat_class).reset_index()
+                record.stream_df = pd.concat(concat_stream_df).reset_index()
+                record.TDparams_stream_df = pd.concat(concat_TDparams_stream_df).reset_index()
 
                 # Store values in a session state
                 st.session_state["stream_df"] = record.stream_df
+                st.session_state["TDparams_df"] = record.TDparams_stream_df
 
                 # Expander
                 expander_df = record.stream_df[["filename", "fileformat", "tracename", "npts", "delta", "starttime", "endtime"]]
@@ -166,23 +190,20 @@ def importandTrim():
             
             # Select record to calibrate
             record_select = calib_col1.selectbox(
-            "Select file",
-            st.session_state["stream_df"]["filename"].unique(), 
-            help= "Set selected file's parameters.")
-
-            calib_col1.caption(f"_{record_select}_")
-
-            st.session_state["selected_prop"] = st.session_state["stream_df"]["filename"].str.contains(record_select, regex=True)
+                                                "Select file",
+                                                st.session_state["stream_df"]["filename"].unique(),   # st.session_state["stream_df"]["filename"].unique()    str(st.session_state["stream_df"]["filename"].unique())[2:-2])
+                                                help= "Set parameters for selected file.",
+                                                )
             
 
+            st.session_state["selected_prop"] = st.session_state["stream_df"]["filename"].str.contains(record_select, regex=True)
+
             # Apply Calibration factor
-            calib_factor = calib_col2.number_input("Calibration factor.", help= "Factor to divide raw values for to convert chosen unit.", value=1)
-            calib_col2.caption(f"_Input box {calib_factor}_")
+            calib_factor = calib_col2.number_input("Calibration factor.", help= "Factor for converting raw values(counts) to chosen unit of acceleration.", value=1)
 
 
             # Select unit
-            select_unit = calib_col3.selectbox("Select unit.", ("g", "mg", "ug", "m/s2", "cm/s2"), help="Chosen unit of acceleration.")
-            calib_col3.caption(f"_Unit is {select_unit}_")
+            select_unit = calib_col3.selectbox("Select unit.", ("g", "mg", "m/s/s", "cm/s/s"), help="Unit of acceleration.")
 
 
             # Apply button
@@ -207,8 +228,6 @@ def importandTrim():
 
                         # Set calibration state
                         st.session_state["stream_df"]["calibrationstatus"].iloc[index] = "Set"
-                        
-
 
                 st.session_state["stream_df"]["unit"] = select_unit
 
@@ -218,6 +237,8 @@ def importandTrim():
             # Trim range select
             for index, value in st.session_state["selected_prop"].items():
                 if value == True:
+                    ### Data (1) problemi burada 
+                    ##########################
                     duration = int(st.session_state["stream_df"]["npts"].iloc[[index]] * st.session_state["stream_df"]["delta"].iloc[[index]])
 
             trim_range = trim_col1.slider("Select trimming range in seconds", 0, duration, (0, duration))
@@ -298,18 +319,13 @@ def importandTrim():
                 fig_ts.update_yaxes(title_text=f"Acceleration ({str(unit[0])})")
 
             
-                
-
-
-
+            
     # Plot objects
     fig_ts.update_layout(legend_title_text = "File name - Trace", legend=dict(x=0.01, y=0.01), height=600)           # title_text= "Time Series",
     fig_ts.update_xaxes(title_text="Time (s)")
     #fig_ts.update_yaxes(title_text=f"Acceleration")
 
     import_plot_container.plotly_chart(fig_ts, theme="streamlit", use_container_width=True, height=600)
-
-
 
 
 

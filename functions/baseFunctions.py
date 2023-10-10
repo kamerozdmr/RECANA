@@ -81,6 +81,8 @@ def detrendFunction(data, method, ord):
         return detrd
 
 
+
+
 #####################
 # Export Functions
 
@@ -109,6 +111,16 @@ def exportExcel(stream_df, export_prop, export_data_select, export_time_domain):
                 sheetname = str(stream_df["tracename"].iloc[index])
                 # Write each dataframe to a different worksheet.
                 df.to_excel(writer, sheet_name = sheetname) 
+        # Close the Pandas Excel writer and output the Excel file to the buffer
+        writer.save()               
+
+    return buffer
+
+def exportExcelSingle(data):
+    buffer = io.BytesIO()
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        data.to_excel(writer) 
         # Close the Pandas Excel writer and output the Excel file to the buffer
         writer.save()               
 
