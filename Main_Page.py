@@ -105,13 +105,12 @@ def sidebar_base():
     st.sidebar.info(
                     """
                     >___Web Application for signal processing and analysis of acceleration data for Earthquake Engineering___\n
-                    [**For Detailed Information**](https://modaltrace.com/)\n
                     ___kamermozdemir@gmail.com___\n
                     _v0.4_ - _04.09.2023_
                     """
                     )
     
-                    #[**GitHub repository**](https://github.com/kamerozdmr/RECANA)\n
+                    #[**GitHub repository**](https://github.com/kamerozdmr/RECANA)\n          [**For Detailed Information**](https://modaltrace.com/)\n
 
 if __name__ == '__main__':
     main()

@@ -13,11 +13,11 @@ def importandTrim():
     
     # Headers and containers
     # Page Main Title 
-    st.info(
-                    """___For more detailed information about the app visit___
-                    [**www.modaltrace.com**](https://modaltrace.com/)\n
-                    """
-                    )
+    #st.info(
+    #                """___For more detailed information about the app visit___
+    #                [**www.modaltrace.com**](https://modaltrace.com/)\n
+    #                """
+    #                )
     
     colored_header(
                     label="Import and Trim",
