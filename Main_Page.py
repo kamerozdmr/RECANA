@@ -106,7 +106,7 @@ def sidebar_base():
                     """
                     >___Web Application for signal processing and analysis of acceleration data for Earthquake Engineering___\n
                     ___kamermozdemir@gmail.com___\n
-                    _v0.4_ - _04.09.2023_
+                    _v0.4_ - _11.10.2023_
                     """
                     )
     

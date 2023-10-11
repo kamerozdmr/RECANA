@@ -12,6 +12,13 @@ from functions.unitcorrection import *
 from functions.baseFunctions import exportExcelSingle
 
 def timeDomainAnalysis():
+    
+    st.info(
+                    """___For more detailed information about the app visit___
+                    [**www.modaltrace.com**](https://modaltrace.com/)\n
+                    """
+                    )
+
 
     # Page Main Title 
     colored_header(

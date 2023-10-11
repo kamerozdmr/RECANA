@@ -11,6 +11,13 @@ from functions.plotFunctions import kernelPlot
 
 def filterandExport():
     
+    st.info(
+                    """___For more detailed information about the app visit___
+                    [**www.modaltrace.com**](https://modaltrace.com/)\n
+                    """
+                    )
+    
+
     # Page Main Title 
     colored_header(
                     label="Filter and Export",

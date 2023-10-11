@@ -11,14 +11,15 @@ import parse
 def importandTrim():
     from classes.recordClass import Record
     
-    # Headers and containers
-    # Page Main Title 
-    #st.info(
-    #                """___For more detailed information about the app visit___
-    #                [**www.modaltrace.com**](https://modaltrace.com/)\n
-    #                """
-    #                )
+
+    st.info(
+                    """___For more detailed information about the app visit___
+                    [**www.modaltrace.com**](https://modaltrace.com/)\n
+                    """
+                    )
     
+    # Headers and containers
+    # Page Main Title   
     colored_header(
                     label="Import and Trim",
                     description="Select a file to analyze.",
