@@ -1,8 +1,7 @@
 import streamlit as st
 from streamlit_extras.colored_header import colored_header
 from streamlit_extras.customize_running import center_running
-from numpy import argmax, linspace, around, append, full
-from numpy import log10
+from numpy import argmax, linspace, around, append, full, zeros, pi, log10, array
 
 import plotly.graph_objects as go
 import pandas as pd
@@ -18,11 +17,10 @@ def roundtoMultiple(num, multiple):
 def frequencyDomainAnalysis():
 
     st.info(
-                    """___For more detailed information about the app visit___
-                    [**www.modaltrace.com**](https://modaltrace.com/)\n
+                    """___For more detailed information about the app, please visit___
+                    [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
                     """
                     )
-
 
     # Page Main Title 
     colored_header(
@@ -87,7 +85,7 @@ def frequencyDomainAnalysis():
                                                     help="Set between 2 to 6"
                                                     )
         
-        st.session_state["decimal"] = decimal
+        st.session_state["decimal"] = int(decimal)
 
 
         # Filter filename and data type
@@ -179,9 +177,9 @@ def frequencyDomainAnalysis():
 
 
             response_cont = response_tab.container()
-            response_col1, _ = response_cont.columns([2,6])
-            response_fig_cont = response_tab.container()
-            response_data_cont = response_tab.container()
+            response_col1, response_col2, response_col3, response_col4 = response_cont.columns([2,2,2,2])
+            response_fig_cont = response_cont.container()
+            response_data_cont = response_cont.container()
 
             responceTS_cont = responceTS_tab.container()
             responseTS_col1, _ = responceTS_cont.columns([2,6])
@@ -272,11 +270,6 @@ def frequencyDomainAnalysis():
             ### Spectrum
             ##################################### 
 
-            #spectrum_cont = spectrum_tab.container()
-            #spectrum_col1, spectrum_col2, spectrum_col3, _ = spectrum_cont.columns([2,2,2,6])
-            #welch_col1, welch_col2, _ = spectrum_cont.columns([2,2,6])
-            #spectrum_fig_cont = spectrum_tab.container()
-            #spectrum_data_cont = spectrum_tab.container()
             with spectrum_tab:
                 center_running()
 
@@ -410,7 +403,7 @@ def frequencyDomainAnalysis():
                 f, t, Sxx  = spectrogramFunction(st.session_state["FD_trace_selected"][st.session_state["selected_export_prop"]].iloc[0], 
                                                         st.session_state["FD_trace_selected"]["delta"].iloc[0], 
                                                         )
-                
+                fig_spectrogram = go.Figure()
                 fig_spectrogram = go.Figure(data=go.Heatmap(
                                                             x= t,
                                                             y= f,
@@ -430,13 +423,97 @@ def frequencyDomainAnalysis():
 
                 spectrogram_fig_cont.plotly_chart(fig_spectrogram, theme="streamlit", use_container_width=True, height=600)
 
+
             #####################################
             ### Response Spectrum
             ##################################### 
             with response_tab:
                 center_running()
-                response_col1.write("In Progress...")
 
+
+                # Select Channel
+                response_trace_select = response_col1.selectbox(
+                                                        "Select Channel/Trace",
+                                                        st.session_state["FD_selected"]["tracename"],      
+                                                        key=11,       
+                                                        )
+                
+                # Filter dataframe for selected channel
+                st.session_state["FD_trace_selected"] = st.session_state["FD_selected"].loc[st.session_state["FD_selected"]["tracename"] == response_trace_select] 
+                st.session_state["FD_selected_index"] = st.session_state["FD_trace_selected"].index[0]
+
+                # Window Length
+                response_resolution = response_col2.slider(
+                                                        "Resolution",
+                                                        0.02, 0.5, 0.1 ,0.02,
+                                                        help="Response Spectrum resolution to analyze each step" ,          
+                                                        key=12,
+                                                        )
+                    
+                # Number of overlap
+                response_damping = response_col3.slider(
+                                                        "Damping Ratio",
+                                                        0.01, 0.9, 0.05, 0.01, 
+                                                        help="Damping Ratio",
+                                                        key=13,     
+                                                        )
+                
+                # INPUT DATA
+                damping = response_damping
+                m = 1
+                dt = st.session_state["FD_trace_selected"]["delta"].iloc[0]
+                resolution = response_resolution
+                datapoint = int((1/resolution) * 2)
+                response_T = zeros((datapoint,1))
+                response_T[:,0] = linspace(resolution,2,datapoint)[:]
+                response_Tl = []
+                for d in response_T:
+                    response_Tl.append(d[0])
+                response_Tl = array(response_Tl)
+
+                omega_n = 2 * pi / response_T
+                K = m*(omega_n**2)
+                            
+                # SOLUTION
+                u0 = responseStateSpace(damping, K, omega_n, dt, 
+                    st.session_state["FD_trace_selected"][st.session_state["selected_export_prop"]].iloc[0])[0]
+
+                # RESPONSE SPECTRUM PLOT
+                response_A = (omega_n**2)*(u0/9.81) 
+                response_Al = []
+                for d in response_A:
+                    response_Al.append(d[0])
+                response_Al = array(response_Al)
+
+
+                #####################################
+                ### Repsponse Spectrum Figure
+                #####################################
+                fig_response_spectrum = go.Figure()
+
+                linename = str(st.session_state["FD_trace_selected"]["filename"].iloc[0]) + str(" ") + str(st.session_state["FD_trace_selected"]["tracename"].iloc[0])
+                
+                fig_response_spectrum.add_trace(go.Scatter(
+                                                            x= response_Tl, 
+                                                            y= response_Al,
+                                                            line=dict(color="#1f77b4"),
+                                                            mode="lines",
+                                                            line_width=3,
+                                                            name= linename,
+                                                            ))
+                
+                # Plot objects
+                fig_response_spectrum.update_layout(title_text= "<b>Response Spectrum<b>", legend_title_text = "File name - Trace", legend=dict(x=0.01, y=0.01))           # title_text= "Time Series",
+                fig_response_spectrum.update_xaxes(title_text="Period (s)")
+                fig_response_spectrum.update_yaxes(title_text=f"SA (g)")
+                fig_response_spectrum.update_layout(xaxis_type= "linear", yaxis_type= "linear")
+
+                fig_response_spectrum.update_layout(height=600)
+
+                response_fig_cont.plotly_chart(fig_response_spectrum, theme="streamlit", use_container_width=True, height=600)
+                
+
+                
             with responceTS_tab:
                 center_running()
                 responseTS_col1.write("In Progress...")

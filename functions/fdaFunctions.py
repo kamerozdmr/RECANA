@@ -98,3 +98,33 @@ def spectrogramFunction(acceleration, delta):
     return f, t, Sxx 
 
 
+def responseStateSpace(xi, K, omega_n, dt, E):
+    """
+    Calculate Response Spectrum
+    """
+
+    from numpy import zeros, array, linalg, real, eye, exp
+    from scipy.linalg import eig
+
+    u = []
+    u0 = zeros((len(omega_n),1)) 
+
+    for j in range(len(omega_n)):
+        wn = omega_n[j,0]
+        A = array([[0, 1],[-wn**2, -2*xi*wn]])
+        D, V = eig(A)
+        ep = array([[exp(D[0]*dt),0],[0, exp(D[1]*dt)]])
+        Ad = V.dot(ep).dot(linalg.inv(V))
+        Bd = linalg.inv(A).dot(Ad - eye(len(A)))
+        z = [[0], [0]]
+        d= zeros((len(E),1))
+        v= zeros((len(E),1))
+        
+        for i in range(len(E)):
+            z = real(Ad).dot(z) + real(Bd).dot([[0],[-E[i]*9.81]])
+            d[i] = z[0,0] 
+            v[i] = z[1,0]
+            u.append(d)
+            
+        u0[j] = max(abs(d))        
+    return u0, u  

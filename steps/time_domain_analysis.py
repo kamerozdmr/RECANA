@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_extras.colored_header import colored_header
 from streamlit_extras.customize_running import center_running
-from numpy import argmax, linspace, around, append, full
+from numpy import argmax, linspace, around, append, full, array
 
 import plotly.graph_objects as go
 import pandas as pd
@@ -14,12 +14,11 @@ from functions.baseFunctions import exportExcelSingle
 def timeDomainAnalysis():
     
     st.info(
-                    """___For more detailed information about the app visit___
-                    [**www.modaltrace.com**](https://modaltrace.com/)\n
+                    """___For more detailed information about the app, please visit___
+                    [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
                     """
                     )
-
-
+    
     # Page Main Title 
     colored_header(
                     label="Time Domain Analysis",
@@ -83,7 +82,7 @@ def timeDomainAnalysis():
                                                     help="Set between 2 to 6"
                                                     )
         
-        st.session_state["decimal"] = decimal
+        st.session_state["decimal"] = int(decimal)
 
 
         # Filter filename and data type
@@ -224,8 +223,10 @@ def timeDomainAnalysis():
 
                 # Acceleration and time arrays
                 acc = st.session_state["TD_trace_selected"][st.session_state["selected_export_prop"]].iloc[0]
+                acc = acc.astype("float64")
                 timedomain = st.session_state["TD_trace_selected"][st.session_state["export_time_domain"]].iloc[0]
-                
+                timedomain = timedomain.astype("float64")
+
                 # Get unit of acceleration
                 unit_str = st.session_state["TD_trace_selected"]["unit"].iloc[0]
                 
@@ -237,9 +238,10 @@ def timeDomainAnalysis():
                                                 name= linename,
                                                 ))
                 
-                # Find PGA
-                pga = round(max(acc, key=abs), st.session_state["decimal"])                
+                
+                pga = round(max(acc, key=abs), st.session_state["decimal"])  
                 t_pga = round(timedomain[argmax(abs(acc))], st.session_state["decimal"])
+
 
                 st.session_state["TDparams_df"]["PGA"].iloc[st.session_state["TD_selected_index"]] = pga
                 st.session_state["TDparams_df"]["PGAtime"].iloc[st.session_state["TD_selected_index"]] = t_pga

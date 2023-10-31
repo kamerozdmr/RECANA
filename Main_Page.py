@@ -105,8 +105,9 @@ def sidebar_base():
     st.sidebar.info(
                     """
                     >___Web Application for signal processing and analysis of acceleration data for Earthquake Engineering___\n
+                    [_For more detailed information about the app, please visit_ **www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
                     ___kamermozdemir@gmail.com___\n
-                    _v0.4_ - _11.10.2023_
+                    _v0.5_ - _31.10.2023_
                     """
                     )
     

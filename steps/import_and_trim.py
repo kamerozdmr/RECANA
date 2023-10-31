@@ -13,8 +13,8 @@ def importandTrim():
     
 
     st.info(
-                    """___For more detailed information about the app visit___
-                    [**www.modaltrace.com**](https://modaltrace.com/)\n
+                    """___For more detailed information about the app, please visit___
+                    [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
                     """
                     )
     
@@ -61,7 +61,7 @@ def importandTrim():
     read_rec_col, info_col = import_container.columns([2, 2])
 
     # Import file
-    files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "sac", "gcf"])
+    files = read_rec_col.file_uploader("Import acceleration data", accept_multiple_files=True, type=["mseed", "asc", "sac", "gcf"])
     
     ######################
     # Calibration section   
@@ -108,7 +108,7 @@ def importandTrim():
 
 
     if "uploaded_files" not in st.session_state:
-        read_rec_col.warning("___Supported file formats : .mseed, .sac, .gcf___", icon="⚠️")
+        read_rec_col.warning("___Supported file formats : MiniSEED, ASCII, SAC, GCF___", icon="⚠️")
 
     else:
         
@@ -138,21 +138,15 @@ def importandTrim():
                     #file_name = ''.join(file_name_format)
                 
                     file_name, file_format = os.path.splitext(str(files[ind].name))
+          
                     
                     #################################
                     #################################
-                    if file_format == ".asc":
-                        data = files[0].readlines()
-
-                        st.write(len(data))
-                    
-                    #################################
-                    #################################
-                    
+                    # MiniSEED, SAC, GCF reading section
                     # Create Record instance
                     record = Record(files[ind], file_name, file_format[1:])
 
-                    # Run funtion that imports record file 
+                    # Run function that imports record file 
                     record.importFile()
 
                     # List of stream instances that are going to be concatenated

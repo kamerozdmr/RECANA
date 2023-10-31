@@ -11,12 +11,12 @@ from functions.plotFunctions import kernelPlot
 
 def filterandExport():
     
+
     st.info(
-                    """___For more detailed information about the app visit___
-                    [**www.modaltrace.com**](https://modaltrace.com/)\n
+                    """___For more detailed information about the app, please visit___
+                    [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
                     """
                     )
-    
 
     # Page Main Title 
     colored_header(
