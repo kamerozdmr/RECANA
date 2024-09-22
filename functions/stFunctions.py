@@ -11,10 +11,11 @@ def get_base64_of_bin_file(png_file):
 
 def build_markup_for_logo(
     png_file,
-    background_position="18px 5%",
-    margin_top="1%",
-    image_width="80px",
+    background_position="24px 5%",
+    margin_top="5%",
+    image_width="84px",
     image_height=""):
+
     binary_string = get_base64_of_bin_file(png_file)
     return """
             <style>
@@ -27,12 +28,12 @@ def build_markup_for_logo(
                 }
             </style>
             """ % (
-        binary_string,
-        background_position,
-        margin_top,
-        image_width,
-        image_height,
-    )
+                    binary_string,
+                    background_position,
+                    margin_top,
+                    image_width,
+                    image_height,
+                    )
 
 
 def add_logo(png_file):
@@ -65,7 +66,7 @@ def sidebarLogoOptionMenu(png_file, header_sidebar):
             font-weight:48px ;
             font-size:32px !important;
             color: #EEEEEE !important;
-            padding-top: 5px !important;
+            padding-top: 3px !important;
         }
         .logo-img {
             float:right;

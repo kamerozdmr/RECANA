@@ -98,9 +98,11 @@ def editDelimiter(delimiter):
         return "|"
 
 
+"""
+# Version 3.8
 
 def exportExcel(stream_df, export_prop, export_data_select, export_time_domain):
-
+    
     buffer = io.BytesIO()
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
@@ -115,14 +117,35 @@ def exportExcel(stream_df, export_prop, export_data_select, export_time_domain):
         writer.save()               
 
     return buffer
+    """
+
+def exportExcel(stream_df, export_prop, export_data_select, export_time_domain):
+
+    buffer = io.BytesIO()
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        for index, value in export_prop.items():
+            if value:
+                df = pd.DataFrame({
+                    "Data": list(stream_df[export_data_select].iloc[index]),
+                    "Time": list(stream_df[export_time_domain].iloc[index])
+                })
+                sheetname = str(stream_df["tracename"].iloc[index])
+                # Write each dataframe to a different worksheet.
+                df.to_excel(writer, sheet_name=sheetname)
+        # No need for writer.save() or writer.close() within the 'with' block
+
+    # Return the buffer to be used in the download button
+    buffer.seek(0)
+    return buffer
+
 
 def exportExcelSingle(data):
     buffer = io.BytesIO()
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-        data.to_excel(writer) 
-        # Close the Pandas Excel writer and output the Excel file to the buffer
-        writer.save()               
+        data.to_excel(writer)  # Write the data to the Excel file
+        # No need to explicitly call writer.save() or writer.close()
 
     return buffer
 

@@ -11,12 +11,13 @@ from functions.plotFunctions import kernelPlot
 
 def filterandExport():
     
-
-    st.info(
-                    """___For more detailed information about the app, please visit___
-                    [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
-                    """
-                    )
+    
+    #st.info(
+    #                """___For more detailed information about the app, please visit___
+    #                [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
+    #                """
+    #                )
+    
 
     # Page Main Title 
     colored_header(
@@ -228,9 +229,9 @@ def filterandExport():
                     nyquist = float(int(1/delta)/2)
 
                     # band-pass filter objects
-                    highpass_corner = filter_col3.number_input("High-pass Corner", help= "Select High-pass filter corner frequency.", value= float(0.5), min_value= 0.01, max_value= nyquist-0.1, step=0.1)
+                    highpass_corner = filter_col3.number_input("High-pass Corner", help= "Select High-pass filter corner frequency.", value= float(0.3), min_value= 0.01, max_value= nyquist-0.1, step=0.1)
                     lowpass_corner = filter_col3.number_input("Low-pass Corner", help= "Select Low-pass filter corner frequency.", value= float(25), min_value= highpass_corner+0.1, max_value= nyquist-0.1, step=0.1)
-                    st.session_state["filter_order"] = filter_col4.number_input("Order", help= "Select the order of the filter.", value= int(4), min_value= int(1), max_value= int(20))
+                    st.session_state["filter_order"] = filter_col4.number_input("Order", help= "Select the order of the filter.", value= int(3), min_value= int(1), max_value= int(10))
 
                     st.session_state["filter_prop"] = [highpass_corner, lowpass_corner]
 
@@ -485,6 +486,7 @@ def filterandExport():
                                             data= exportExcel(st.session_state["stream_df"], st.session_state["selected_export_prop"], st.session_state["export_data_select"], st.session_state["export_time_domain"]),
                                             file_name= f"{filename}_recana.xlsx",
                                             mime= "application/vnd.ms-excel",
+                                            #mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                             )
 
 

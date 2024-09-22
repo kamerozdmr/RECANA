@@ -120,5 +120,25 @@ def scavunit(acc_unit):
     return scav_factor
 
 
+def responseunit(acc_unit):
+
+    if acc_unit == "g":
+        response_factor = float(1)
+
+    elif acc_unit == "Raw":
+        response_factor = float(1)
+
+    elif acc_unit == "m/s/s":
+        response_factor = float(9.81)
+
+    elif acc_unit == "mg":
+        response_factor = float(1000)
+
+    elif acc_unit == "cm/s/s" or acc_unit == "gal":
+        response_factor = float(981)
+
+    return response_factor
+
+
 
 

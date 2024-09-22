@@ -107,9 +107,15 @@ class Record:
                     }
 
             # Append to stream_df
-            self.stream_df = self.stream_df.append(trace_dict, ignore_index = True)
+            # Version 3.8
+            #self.stream_df = self.stream_df.append(trace_dict, ignore_index = True)
+            
+            # Version 3.12
+            # Create a DataFrame from trace_dict
+            trace_df = pd.DataFrame([trace_dict])
 
-
+            # Concatenate with stream_df
+            self.stream_df = pd.concat([self.stream_df, trace_df], ignore_index=True)
 
 
             # Create Dataframe containing time domain analysis parameters
@@ -133,155 +139,193 @@ class Record:
                                     }
             
             # Append to TDparams_df
-            self.TDparams_stream_df = self.TDparams_stream_df.append(TDparams_trace_dict, ignore_index = True)
+            # Version 3.8
+            #self.TDparams_stream_df = self.TDparams_stream_df.append(TDparams_trace_dict, ignore_index = True)
 
+            # Version 3.12
+            # Create a DataFrame from TDparams_trace_dict
+            TDparams_trace_df = pd.DataFrame([TDparams_trace_dict])
 
+            # Concatenate with TDparams_stream_df
+            self.TDparams_stream_df = pd.concat([self.TDparams_stream_df, TDparams_trace_df], ignore_index=True)
 
 
 
 
     def createAscFileParameters(self):
-        # Read ASCII files
-        data_all = pd.read_table(self.filedata, names=["Data"])
-        # Define the string to search for division of header and data
-        search_string = "USER5: "
-        
-        # Use str.contains() to search for the string in the 'Data' column
-        index_header = data_all[data_all["Data"].str.contains(search_string)].index + 1
-        data_header = data_all.iloc[:index_header[0]].reset_index()
-        data_header[["Description", "Value"]] = data_header["Data"].str.split(": ", 1, expand=True)
-        self.data_header = data_header.drop("Data", axis=1)
-    
-        self.data = data_all.iloc[index_header[0]:].reset_index()
-
-
-        # Dictionary containing record properties
-        self.stream_dict = {"filename": [], 
-                            "fileformat": [],
-                            "tracename": [],
-                            "rawdata": [],
-                            "calibrateddata": [],
-                            "calibrationstatus": [],
-                            "trimmeddata": [],
-                            "trimstatus": [],
-                            "timesec": [],
-                            "trimmedtimesec": [],
-
-                            "detrendeddata": [],
-                            "detrendstatus": [],
-                            "filtereddata":[],
-                            "filterstatus": [],
-
-                            "npts": [],
-                            "delta": [],
-                            "starttime": [],
-                            "endtime": [],
-                            "unit": [],
-                            }
-
-        self.stream_df =  pd.DataFrame(data= self.stream_dict)
-
-        # Dictionary containing time domain analysis parameters
-        self.TDparams_stream_dict = {"filename": [],
-                                    "tracename": [],
-                                    "PGA": [],
-                                    "PGAtime": [],
-                                    "PGAunit": [],
-                                    "PGV": [],
-                                    "PGVtime": [],
-                                    "PGVunit": [],
-                                    "PGD": [],
-                                    "PGDtime": [],
-                                    "PGDunit": [], 
-                                    "AriasIntensity": [],
-                                    "AriasIntensityunit": [],
-                                    "SignificantDuration": [],
-                                    "CAV": [],
-                                    "StandardizedCAV": [],
-                                    "CAVunit" : [],
-                                    }
-        
-        self.TDparams_stream_df =  pd.DataFrame(data= self.TDparams_stream_dict)
-
-
-
-        for trace_ind in range(1):
-            data =  self.data["Data"]   
-
-            # Name of the trace
-            tracename_ind = data_header[self.data_header["Description"].str.contains("STREAM")].index
-            tracename = data_header.Value.iloc[tracename_ind[0]]
-
-            # Npts of the trace
-            npts_ind = data_header[self.data_header["Description"].str.contains("NDATA")].index
-            npts = int(data_header.Value.iloc[npts_ind[0]])
-
-            # Delta of the trace
-            delta_ind = data_header[self.data_header["Description"].str.contains("SAMPLING_INTERVAL_S")].index
-            delta = float(data_header.Value.iloc[delta_ind[0]])
-
-
-            # Starttime of the trace
-            starttime_ind = data_header[self.data_header["Description"].str.contains("DATE_TIME_FIRST_SAMPLE_YYYYMMDD_HHMMSS")].index
-            starttime = UTCDateTime.strptime(data_header.Value.iloc[starttime_ind[0]], "%Y%m%d_%H%M%S")
-
-
-            # Create Dataframe containing record properties  
-            trace_dict = {"filename": self.filename, 
-                    "fileformat": self.fileformat,
-                    "tracename": f"Trace{trace_ind+1}-{tracename}",
-                    "rawdata": data.astype("float64"),
-                    "calibrateddata": [],
-                    "trimmeddata": [],
-
-                    "calibrationstatus": "Not Set",
-                    "trimstatus": "Not Set",
-
-                    "timesec": pd.Series(np.linspace(0, npts * delta, num=npts, endpoint=False), dtype="float64"),
-                    "trimmedtimesec": pd.Series(np.linspace(0, npts * delta, num=npts, endpoint=False), dtype="float64"),
-
-                    "detrendeddata": [],
-                    "detrendstatus": "Not Set",
-                    "filtereddata":[],
-                    "filterstatus": "Not Set",
-
-                    "npts": int(npts),
-                    "delta": float(delta),
-                    "starttime": starttime,
-                    "endtime": "Not Set",
-                    "unit": "Raw",
-                    }
-
-            # Append to stream_df
-            self.stream_df = self.stream_df.append(trace_dict, ignore_index = True)
-
-
-
-
-            # Create Dataframe containing time domain analysis parameters
-            TDparams_trace_dict = {"filename": self.filename,
-                                    "tracename": f"Trace{trace_ind+1}-{tracename}",
-                                    "PGA": None,
-                                    "PGAtime": None,
-                                    "PGAunit": None,
-                                    "PGV": None,
-                                    "PGVtime": None,
-                                    "PGVunit": None,
-                                    "PGD": None,
-                                    "PGDtime": None,
-                                    "PGDunit": None, 
-                                    "AriasIntensity": None,
-                                    "AriasIntensityunit": None,
-                                    "SignificantDuration": None,
-                                    "CAV": None,
-                                    "StandardizedCAV": None,
-                                    "CAVunit" : None,
-                                    }
+        try:
+            # Read ASCII files
+            data_all = pd.read_table(self.filedata, names=["Data"])
+            # Define the string to search for division of header and data
+            search_string = "USER5: "
             
-            # Append to TDparams_df
-            self.TDparams_stream_df = self.TDparams_stream_df.append(TDparams_trace_dict, ignore_index = True)
+            # Use str.contains() to search for the string in the 'Data' column
+            index_header = data_all[data_all["Data"].str.contains(search_string)].index + 1
+            data_header = data_all.iloc[:index_header[0]].reset_index()
 
-        #self.TDparams_stream_df = 
+            # Check for missing values or unexpected formats
+            if data_header["Data"].isnull().any() or not all(": " in str(x) for x in data_header["Data"]):
+                raise ValueError("Missing record description")
+
+            # Ensure we are dealing with a proper string format
+            data_header["Data"] = data_header["Data"].astype(str)
+
+            # Split the Data column into Description and Value
+            split_result = data_header["Data"].str.split(": ", n=1, expand=True)
+            
+            if split_result.shape[1] < 2:  # Check if split was successful
+                raise ValueError("Unable to split data into Description and Value")
+
+            data_header[["Description", "Value"]] = split_result
+            self.data_header = data_header.drop("Data", axis=1)
+
+            self.data = data_all.iloc[index_header[0]:].reset_index()
+
+
+            # Dictionary containing record properties
+            self.stream_dict = {"filename": [], 
+                                "fileformat": [],
+                                "tracename": [],
+                                "rawdata": [],
+                                "calibrateddata": [],
+                                "calibrationstatus": [],
+                                "trimmeddata": [],
+                                "trimstatus": [],
+                                "timesec": [],
+                                "trimmedtimesec": [],
+
+                                "detrendeddata": [],
+                                "detrendstatus": [],
+                                "filtereddata":[],
+                                "filterstatus": [],
+
+                                "npts": [],
+                                "delta": [],
+                                "starttime": [],
+                                "endtime": [],
+                                "unit": [],
+                                }
+
+            self.stream_df =  pd.DataFrame(data= self.stream_dict)
+
+            # Dictionary containing time domain analysis parameters
+            self.TDparams_stream_dict = {"filename": [],
+                                        "tracename": [],
+                                        "PGA": [],
+                                        "PGAtime": [],
+                                        "PGAunit": [],
+                                        "PGV": [],
+                                        "PGVtime": [],
+                                        "PGVunit": [],
+                                        "PGD": [],
+                                        "PGDtime": [],
+                                        "PGDunit": [], 
+                                        "AriasIntensity": [],
+                                        "AriasIntensityunit": [],
+                                        "SignificantDuration": [],
+                                        "CAV": [],
+                                        "StandardizedCAV": [],
+                                        "CAVunit" : [],
+                                        }
+            
+            self.TDparams_stream_df =  pd.DataFrame(data= self.TDparams_stream_dict)
+
+
+
+            for trace_ind in range(1):
+                data =  self.data["Data"]   
+
+                # Name of the trace
+                tracename_ind = data_header[self.data_header["Description"].str.contains("STREAM")].index
+                tracename = data_header.Value.iloc[tracename_ind[0]]
+
+                # Npts of the trace
+                npts_ind = data_header[self.data_header["Description"].str.contains("NDATA")].index
+                npts = int(data_header.Value.iloc[npts_ind[0]])
+
+                # Delta of the trace
+                delta_ind = data_header[self.data_header["Description"].str.contains("SAMPLING_INTERVAL_S")].index
+                delta = float(data_header.Value.iloc[delta_ind[0]])
+
+
+                # Starttime of the trace
+                starttime_ind = data_header[self.data_header["Description"].str.contains("DATE_TIME_FIRST_SAMPLE_YYYYMMDD_HHMMSS")].index
+                starttime = UTCDateTime.strptime(data_header.Value.iloc[starttime_ind[0]], "%Y%m%d_%H%M%S")
+
+
+                # Create Dataframe containing record properties  
+                trace_dict = {"filename": self.filename, 
+                        "fileformat": self.fileformat,
+                        "tracename": f"Trace{trace_ind+1}-{tracename}",
+                        "rawdata": data.astype("float64"),
+                        "calibrateddata": [],
+                        "trimmeddata": [],
+
+                        "calibrationstatus": "Not Set",
+                        "trimstatus": "Not Set",
+
+                        "timesec": pd.Series(np.linspace(0, npts * delta, num=npts, endpoint=False), dtype="float64"),
+                        "trimmedtimesec": pd.Series(np.linspace(0, npts * delta, num=npts, endpoint=False), dtype="float64"),
+
+                        "detrendeddata": [],
+                        "detrendstatus": "Not Set",
+                        "filtereddata":[],
+                        "filterstatus": "Not Set",
+
+                        "npts": int(npts),
+                        "delta": float(delta),
+                        "starttime": starttime,
+                        "endtime": "Not Set",
+                        "unit": "Raw",
+                        }
+
+                # Append to stream_df
+                # Version 3.8
+                #self.stream_df = self.stream_df.append(trace_dict, ignore_index = True)
+
+                # Version 3.12
+                # Create a DataFrame from trace_dict
+                trace_df = pd.DataFrame([trace_dict])
+
+                # Concatenate with stream_df
+                self.stream_df = pd.concat([self.stream_df, trace_df], ignore_index=True)
+
+
+                # Create Dataframe containing time domain analysis parameters
+                TDparams_trace_dict = {"filename": self.filename,
+                                        "tracename": f"Trace{trace_ind+1}-{tracename}",
+                                        "PGA": None,
+                                        "PGAtime": None,
+                                        "PGAunit": None,
+                                        "PGV": None,
+                                        "PGVtime": None,
+                                        "PGVunit": None,
+                                        "PGD": None,
+                                        "PGDtime": None,
+                                        "PGDunit": None, 
+                                        "AriasIntensity": None,
+                                        "AriasIntensityunit": None,
+                                        "SignificantDuration": None,
+                                        "CAV": None,
+                                        "StandardizedCAV": None,
+                                        "CAVunit" : None,
+                                        }
+                
+                # Append to TDparams_df
+                # Version 3.8
+                #self.TDparams_stream_df = self.TDparams_stream_df.append(TDparams_trace_dict, ignore_index = True)
+                
+                # Version 3.12
+                # Create a DataFrame from TDparams_trace_dict
+                TDparams_trace_df = pd.DataFrame([TDparams_trace_dict])
+
+                # Concatenate with TDparams_stream_df
+                self.TDparams_stream_df = pd.concat([self.TDparams_stream_df, TDparams_trace_df], ignore_index=True)
+
+        except ValueError as e:     #TypeError
+            raise ValueError("Missing record description") from e
+
+        
 
 
     def importFile(self):

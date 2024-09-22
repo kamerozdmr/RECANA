@@ -55,8 +55,8 @@ def sidebar_base():
     #st.sidebar.markdown("___Adjust sidebar height___")
 
     # Import sidebar logo
-    st.sidebar.markdown('''<img src='data:image/png;base64,{}' class='img-fluid' width=280 height=100>'''.format(img_to_bytes("img/logotext.png")), unsafe_allow_html=True)
-
+    st.sidebar.markdown('''<img src='data:image/png;base64,{}' class='img-fluid' width=300 height=112>'''.format(img_to_bytes("img/logotext.png")), unsafe_allow_html=True)
+    # 1000 * 375
     # Add vertical space
     with st.sidebar:
         add_vertical_space(2)
@@ -74,7 +74,7 @@ def sidebar_base():
             styles={
                     "container": {"padding": "0!important", "background-color": "#dde5dc"},
                     "icon": {"color": "#0151ba", "font-size": "24px"}, 
-                    "nav-link": {"font-size": "16px", "text-align": "left", "margin":"3px", "--hover-color": "#eee"},
+                    "nav-link": {"font-size": "15px", "text-align": "left", "margin":"1px", "--hover-color": "#eee"},
                     "nav-link-selected": {"background-color": "#B4B1B1"},
                     "menu-icon": {"color": "#0151ba"},
                     },
@@ -100,14 +100,18 @@ def sidebar_base():
 
     # Add info box
     st.sidebar.title("About")
-   
 
     st.sidebar.info(
                     """
-                    >___Web Application for signal processing and analysis of acceleration data for Earthquake Engineering___\n
-                    [_For more detailed information about the app, please visit_ **www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
+                    >___Web Application for Signal Processing and Analysis of Acceleration Data in Earthquake Engineering___\n
+                    ___\n
+                    [For more detailed information about the app, please visit: **www.modaltrace.com/recana-record-analyzer**](https://modaltrace.com/recana-record-analyzer)\n
+                    ___\n
+                    ___[GitHub Repository](https://github.com/kamerozdmr/RECANA)___\n
                     ___kamermozdemir@gmail.com___\n
-                    _v0.5_ - _31.10.2023_
+                    ___\n
+
+                    _v1.0_ - _22.09.2024_
                     """
                     )
     

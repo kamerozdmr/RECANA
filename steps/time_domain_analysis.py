@@ -13,11 +13,11 @@ from functions.baseFunctions import exportExcelSingle
 
 def timeDomainAnalysis():
     
-    st.info(
-                    """___For more detailed information about the app, please visit___
-                    [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
-                    """
-                    )
+    #st.info(
+    #                """___For more detailed information about the app, please visit___
+    #                [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
+    #                """
+    #                )
     
     # Page Main Title 
     colored_header(
@@ -186,25 +186,33 @@ def timeDomainAnalysis():
                 
                 # Select Integration Type
                 AVD_integration_type = AVD_col2.selectbox(
-                                                        "Select Integration Type",
-                                                        ["TD Integration", "FD Integration"], 
-                                                        help= "Select the integration type between time domain and frequency domain."                
+                                                        "Select Integration Correction Type",
+                                                        ["TD Correction", "FD Correction"], 
+                                                        help= "Select the integration correction type between time domain and frequency domain. TD Correction: Fits a polynomial with selected order and removes from the signal. FD Correction: Applies Highpass filter."                
                                                         )     
                 
+                AVD_order = 3
+                AVD_corner = 0.2
                 # Raise exception for FD integration --- method is not ready
-                if AVD_integration_type == "FD Integration":
-                    AVD_excp = RuntimeError("Frequency domain integration is not available")
-                    AVD_fig_cont.exception(AVD_excp)
+                if AVD_integration_type == "FD Correction":
+                    AVD_bas_cor = True
+
+                    AVD_corner = AVD_col3.slider(
+                                                "Select Highpass filter corner frequency.",
+                                                0.1, 0.5, 0.3, step=0.1,       
+                                                )
+
+                    #AVD_excp = RuntimeError("Frequency domain integration is not available")
+                    #AVD_fig_cont.exception(AVD_excp)
                     
-                    st.stop()
+                    #st.stop()
 
 
-                AVD_bas_cor = AVD_col3.checkbox("Apply baseline correction for each integration.")
                 
-                AVD_order = None
-                if AVD_bas_cor == True:
+                if AVD_integration_type == "TD Correction":
+                    AVD_bas_cor = True
 
-                    AVD_order = AVD_col4.slider(
+                    AVD_order = AVD_col3.slider(
                                                 "Select order of baseline correction.",
                                                 1,5,1,                 
                                                 )
@@ -282,7 +290,7 @@ def timeDomainAnalysis():
                 # Acceleration to velocity integration
                 acc_corrected = acc / vel_factor
                 
-                vel = TD_integration(acc_corrected, st.session_state["TD_trace_selected"]["delta"].iloc[0], AVD_bas_cor , AVD_order)
+                vel = TD_integration(acc_corrected, st.session_state["TD_trace_selected"]["delta"].iloc[0], AVD_bas_cor , AVD_order, AVD_integration_type, AVD_corner)
 
 
                 linename = str(st.session_state["TD_trace_selected"]["filename"].iloc[0]) + str(" ") + str(st.session_state["TD_trace_selected"]["tracename"].iloc[0])
@@ -336,7 +344,7 @@ def timeDomainAnalysis():
                 # Acceleration to velocity integration
                 disp_corrected = vel / disp_factor
 
-                disp = TD_integration(disp_corrected, st.session_state["TD_trace_selected"]["delta"].iloc[0], AVD_bas_cor , AVD_order)
+                disp = TD_integration(disp_corrected, st.session_state["TD_trace_selected"]["delta"].iloc[0], AVD_bas_cor , AVD_order, AVD_integration_type, AVD_corner)
 
 
                 linename = str(st.session_state["TD_trace_selected"]["filename"].iloc[0]) + str(" ") + str(st.session_state["TD_trace_selected"]["tracename"].iloc[0])

@@ -12,16 +12,16 @@ def importandTrim():
     from classes.recordClass import Record
     
 
-    st.info(
-                    """___For more detailed information about the app, please visit___
-                    [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
-                    """
-                    )
+    #st.info(
+    #                """___For more detailed information about the app, please visit___
+    #                [**www.modaltrace.com**](https://modaltrace.com/recana-record-analyzer)\n
+    #                """
+    #                )
     
     # Headers and containers
     # Page Main Title   
     colored_header(
-                    label="Import and Trim",
+                    label="Import",
                     description="Select a file to analyze.",
                     color_name="blue-70",
                 )
@@ -128,8 +128,16 @@ def importandTrim():
                 read_rec_col.error("___The file could not be found for import___", icon="🚨")
 
             else:
-                concat_stream_df = []
-                concat_TDparams_stream_df = []
+                ####################################################################
+                # Versİon 3.8
+                #concat_stream_df = []
+                #concat_TDparams_stream_df = []
+
+                ####################################################################
+                # Version 3.12
+                concat_stream_df = []  # Initialize as a list
+                concat_TDparams_stream_df = []  # Initialize as a list
+
 
                 for ind in range(len(files)):
                     #file_name, file_format = files[ind].name.split(".")
@@ -150,13 +158,27 @@ def importandTrim():
                     record.importFile()
 
                     # List of stream instances that are going to be concatenated
-                    concat_stream_df.append(record.stream_df)
-                    concat_TDparams_stream_df.append(record.TDparams_stream_df)
+                    ####################################################################
+                    # Version 3.8
+                    #concat_stream_df.append(record.stream_df)
+                    #concat_TDparams_stream_df.append(record.TDparams_stream_df)
+
+                    ####################################################################
+                    # Version 3.12
+                    concat_stream_df.append(record.stream_df)  # Append stream_df
+                    concat_TDparams_stream_df.append(record.TDparams_stream_df)  # Append TDparams_stream_df
+
 
                     
+                # Version 3.8 
                 # Concatenate stream instances
-                record.stream_df = pd.concat(concat_stream_df).reset_index()
-                record.TDparams_stream_df = pd.concat(concat_TDparams_stream_df).reset_index()
+                #record.stream_df = pd.concat(concat_stream_df).reset_index()
+                #record.TDparams_stream_df = pd.concat(concat_TDparams_stream_df).reset_index()
+
+                # Version 3.12
+                # After the loop, concatenate the lists of DataFrames
+                record.stream_df = pd.concat(concat_stream_df, ignore_index=True).reset_index(drop=True)  # Concatenate stream_df
+                record.TDparams_stream_df = pd.concat(concat_TDparams_stream_df, ignore_index=True).reset_index(drop=True)  # Concatenate TDparams_stream_df
 
                 # Store values in a session state
                 st.session_state["stream_df"] = record.stream_df

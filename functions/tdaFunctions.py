@@ -1,6 +1,7 @@
+from functions.baseFunctions import *
 
 
-def TD_integration(input_array, delta, corr_status, order=None):
+def TD_integration(input_array, delta, corr_status, order, integration_corr, corner):
     """
     Time domain integration of time series Acc>Vel - Vel>Disp
     - Inputs
@@ -8,19 +9,29 @@ def TD_integration(input_array, delta, corr_status, order=None):
     delta : sampling interval (float)
     corr_status : baseline correection status (boolean)
     order : baseline correction order (int)
+    integration_corr_type: TD Correction or DF Correction
+    corner: Corner frequency of highpass filter
 
     - Function Outputs
     output_array : Velocity or displacement array
-
     """
-    from obspy.signal.detrend import spline
-    from scipy.integrate import cumtrapz
 
-    if corr_status == True:
-        output_array = spline(cumtrapz(input_array, dx= delta, initial=0), order=order, dspline=len(input_array))
-            
-    elif corr_status == False:
-        output_array = cumtrapz(input_array, dx= delta, initial=0)
+    from obspy.signal.detrend import spline
+    #from scipy.integrate import cumtrapz
+    from scipy.integrate import cumulative_trapezoid
+    from numpy import mean
+
+    if integration_corr == "TD Correction":
+        if corr_status == True:
+            output_array = spline(cumulative_trapezoid(input_array, dx= delta, initial=0), order=order, dspline=len(input_array))
+        elif corr_status == False:
+            output_array = cumulative_trapezoid(input_array, dx= delta, initial=0)
+
+    if integration_corr == "FD Correction":
+        array = cumulative_trapezoid(input_array, dx= delta, initial=0)
+        array_bc = array - mean(array)
+        output_array = iirFilter(array_bc, "highpass", [corner], delta, 3)      # 0-highcut   1-lowcut
+
 
     return output_array
 
@@ -44,11 +55,13 @@ def ariasIntensity(acceleration, delta, time, start_level, end_level, dec):
     husid : duration between start-end arias intensity level (float)
     """
     from numpy import where, trapz, sqrt
-    from scipy.integrate import cumtrapz
+    #from scipy.integrate import cumtrapz
+    from scipy.integrate import cumulative_trapezoid
+
 
     ncoef = 3.1416 / (2 * 9.81)
     acc = (acceleration ) * sqrt(ncoef)
-    aritime = cumtrapz(acc**2) * delta
+    aritime = cumulative_trapezoid(acc**2) * delta
     arias = trapz(acc**2) * delta
 
     hus_to = where(aritime >= start_level/100 * arias)[0][0]
@@ -79,14 +92,15 @@ def cumulativeAbsoluteVelocity(record, delta, unit, dec):
     scavtime : standardized cav time domain (array)
     """
     from numpy import trapz, abs, floor, ceil, max, zeros, append, full
-    from scipy.integrate import cumtrapz
+    #from scipy.integrate import cumtrapz
+    from scipy.integrate import cumulative_trapezoid
     from functions.unitcorrection import scavunit
 
     
     if unit == "Raw":
         # Classic CAV
         cav = trapz(abs(record)) * delta
-        cavtime = cumtrapz(abs(record)) * delta
+        cavtime = cumulative_trapezoid(abs(record)) * delta
         cavtime = append(cavtime, [cavtime[-1]])
 
         scav = None
@@ -97,7 +111,7 @@ def cumulativeAbsoluteVelocity(record, delta, unit, dec):
     else:
         # Classic CAV
         cav = trapz(abs(record)) * delta
-        cavtime = cumtrapz(abs(record)) * delta
+        cavtime = cumulative_trapezoid(abs(record)) * delta
         cavtime = append(cavtime, [cavtime[-1]])
     
         # Standardized CAV
