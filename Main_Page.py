@@ -111,6 +111,8 @@ def sidebar_base():
                     ___kamermozdemir@gmail.com___\n
                     ___\n
 
+                    ___Cite as: [Özdemir, K. (2024). Web Application for Signal Processing and Analysis of Acceleration Data in Earthquake Engineering (1.0). Zenodo. https://doi.org/10.5281/zenodo.13826370](https://doi.org/10.5281/zenodo.13826370)___\n
+
                     _v1.0_ - _22.09.2024_
                     """
                     )
